@@ -36,7 +36,7 @@ class SensoroDailyNotice(object):
         sensoro_logger.log(err="今天是周{}, 大家记得提交日报喔!".format(weekdays[wday]))
         if wday == 5:  # 周五还需要提醒大家修改周报
             sensoro_logger.log(
-                err="今天是周{}, 大家还需要去更新周报喔!"
+                err="今天是周{}, 周报也需要更新喔!"
                     "周报链接: https://shimo.im/sheets/CTrdYQ8HRDtD3tVJ/CdyCZ".format(weekdays[wday]))
 
 
