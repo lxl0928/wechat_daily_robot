@@ -1,0 +1,6 @@
+version: '2.0'
+services:
+  timi_wechant_notice:
+    image: wechant_notice_v1:0702
+    restart: always
+    command: ['python3', "/app/run.py"]
