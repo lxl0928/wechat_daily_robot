@@ -1,4 +1,4 @@
 # coding: utf-8
 
-ACCEPT_PHONES = []
+ACCEPT_PHONES = ["@all"]
 ROBOT_URL = ""
