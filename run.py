@@ -93,7 +93,6 @@ def send_image_msg(image_url):
             "md5": f"{md5}"
         }
     )
-    pprint(image_template)
     requests.post(url=ROBOT_URL, headers=headers, data=json.dumps(image_template))
 
 
@@ -105,15 +104,15 @@ class SensoroDailyNotice(object):
             cnt_datetime = datetime.fromtimestamp(time.time(), tz=tz_sh)
             tm_wday = cnt_datetime.isoweekday()
             tm_hour = cnt_datetime.hour
-            tm_min = cnt_datetime.min
+            tm_min = cnt_datetime.minute
 
             print(f"周{tm_wday}, 小时: {tm_hour}, 分钟: {tm_min}")
             logging.info(msg="{},{}".format(tm_wday, tm_hour, tm_min))
             if tm_wday in [1, 2, 3, 4, 5]:
-                if tm_hour == 10 and tm_min <= 30:
+                if tm_hour == 11 and 29 <= tm_min <= 59:
                     self.send_notice(wday=tm_wday, on_work=True)
 
-                if tm_hour == 19:
+                if tm_hour == 19 and 10 <= tm_min <= 30:
                     self.send_notice(wday=tm_wday, on_work=False)
 
             time.sleep(60 * 30)  # 半小时检查一次
@@ -130,7 +129,11 @@ class SensoroDailyNotice(object):
 
         if not on_work:
             url = "https://shimo.im/sheets/5rk9d8YDEwspDbqx/E58FM"
-            send_text_msg(content="下班啦..., 大家记得更新今日OKR进度{}喔!".format(url))
+            if wday != 5:
+                send_text_msg(content="下班啦..., 别忘记打下班卡喔!".format(url))
+            elif wday == 5:
+                send_text_msg(content="下班啦..., 别忘记打下班卡喔! 周末愉快！".format(url))
+
         else:
             tianqi_url = "https://tianqiapi.com/api?version=v6&appid=49564374&appsecret=4rNE9xdd&cityid=101010300"
             response = requests.get(url=tianqi_url)
@@ -140,7 +143,7 @@ class SensoroDailyNotice(object):
             tem_low = content.get('tem2', '')
             air_tips = content.get('air_tips', '')
             ct_date = datetime.now().date()
-            title = f"{ct_date.year}年{ct_date.month}月{ct_date.day}日  {weekdays[wday]}"
+            title = f"{ct_date.year}年{ct_date.month}月{ct_date.day}日  {weekdays[wday]} "
             description = "早上好!\n今日朝阳区天气: {} 最高温度: {}℃ 最低温度: {}℃\n{}".format(
                 wea, tem_high, tem_low, air_tips)
 
@@ -152,8 +155,12 @@ class SensoroDailyNotice(object):
             fenxiang_img = content.get('fenxiang_img')
             pic_url = content.get('picture2')
 
+            # 发送添加news
             send_news_msg(title=title, description=description, url=url, pic_url=pic_url)
+            # 发送每日一句image
             send_image_msg(image_url=fenxiang_img)
+            # 发送上班打卡tips
+            send_text_msg(content="上班啦..., 别忘记打上班卡喔!".format(url))
 
 
 sensoro_notice = SensoroDailyNotice()
